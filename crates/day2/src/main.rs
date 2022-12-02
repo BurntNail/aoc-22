@@ -42,8 +42,7 @@ impl RPS {
         let m  = Self::to_rps;
         (m(a), m(b))
     }
-    fn to_two_rpss_wdl ((a, b): (char, char)) -> (Self, Self) {
-        let a = Self::to_rps(a);
+    fn move_from_wdl ((a, b): (Self, char)) -> Self {
         let points_target = match b {
             'X' => 0,
             'Y' => 3,
@@ -53,7 +52,7 @@ impl RPS {
 
         for t in [Self::Rock, Self::Paper, Self::Scissors] {
             if t.score_vs(a) == points_target {
-                return (a, t);
+                return t;
             }
         }
 
@@ -64,19 +63,14 @@ impl RPS {
 fn main() {
     let input = include_str!("input.txt");
 
-    let scores: Vec<i32> = input.lines().map(|l| {
-        let mut chars: Vec<char> = l.trim().chars().collect();
-        let (their, my) = RPS::to_two_rpss((chars.remove(0), chars.remove(1)));
+    let (scores, scores_wdl) = input.lines().map(|l| {
+        let chars: Vec<char> = l.trim().chars().collect();
+        let (their, my) = RPS::to_two_rpss((chars[0], chars[2]));
+        let my_wdl = RPS::move_from_wdl((their, chars[2]));
 
-        my.score_vs(their) + my.to_i32()
-    }).collect();
-    let scores_wdl: Vec<i32> = input.lines().map(|l| {
-        let mut chars: Vec<char> = l.trim().chars().collect();
-        let (their, my) = RPS::to_two_rpss_wdl((chars.remove(0), chars.remove(1)));
+        (my.score_vs(their) + my.to_i32(), my_wdl.score_vs(their) + my_wdl.to_i32())
+    }).reduce(|accum, item| (accum.0 + item.0, accum.1 + item.1)).unwrap();
 
-        my.score_vs(their) + my.to_i32()
-    }).collect();
-
-    println!("Total Score: {}", scores.iter().sum::<i32>());
-    println!("Total Score WDL: {}", scores_wdl.iter().sum::<i32>());
+    println!("Total Score: {}", scores);
+    println!("Total Score WDL: {}", scores_wdl);
 }
