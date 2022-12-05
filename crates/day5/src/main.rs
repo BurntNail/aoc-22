@@ -1,3 +1,5 @@
+#![warn(clippy::all, clippy::nursery, clippy::pedantic)]
+
 peg::parser!(grammar crates_list() for str {
     rule crate_contents() -> Option<char> = ['['|' '] c:['A'..='Z']? " "?  [']'|' '] { c }
     pub rule crates () -> Vec<Option<char>> = l:(crate_contents() ** " ") {l}

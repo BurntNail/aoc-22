@@ -1,3 +1,5 @@
+#![warn(clippy::all, clippy::nursery, clippy::pedantic)]
+
 use std::collections::HashSet;
 
 fn main() {
@@ -8,10 +10,13 @@ fn main() {
         .map(line_to_similar_value)
         .map(char_to_priority);
 
-    println!("Sum of similar values = {}", list.map(|x| x as u32).sum::<u32>());
+    println!(
+        "Sum of similar values = {}",
+        list.map(|x| x as u32).sum::<u32>()
+    );
 }
 
-fn line_to_similar_value (lines: &[&str]) -> char {
+fn line_to_similar_value(lines: &[&str]) -> char {
     let mut hs: HashSet<char> = HashSet::from_iter(('a'..='z').chain('A'..='Z'));
 
     for l in lines {
@@ -22,15 +27,11 @@ fn line_to_similar_value (lines: &[&str]) -> char {
     *hs.iter().next().expect("needs intersection")
 }
 
-fn char_to_priority (b: char) -> u8 {
+fn char_to_priority(b: char) -> u8 {
     let b = b as u8;
     match b {
-        b'a'..=b'z' => {
-            b - b'a' + 1
-        },
-        b'A'..=b'Z' => {
-            b - b'A' + 27
-        },
-        _ => 0
+        b'a'..=b'z' => b - b'a' + 1,
+        b'A'..=b'Z' => b - b'A' + 27,
+        _ => 0,
     }
 }

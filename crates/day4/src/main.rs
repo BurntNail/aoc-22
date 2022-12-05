@@ -1,3 +1,5 @@
+#![warn(clippy::all, clippy::nursery, clippy::pedantic)]
+#![allow(clippy::range_plus_one)]
 use std::ops::Range;
 
 peg::parser!( grammar pair_range_parser() for str {
@@ -23,7 +25,9 @@ fn fully_overlap((t, b): (Range<u32>, Range<u32>)) -> bool {
     (t.start >= b.start && t.end <= b.end) || (t.start <= b.start && t.end >= b.end)
 }
 fn overlap_at_all((t, mut b): (Range<u32>, Range<u32>)) -> bool {
-    fully_overlap((t.clone(), b.clone())) || t.clone().any(|x| b.contains(&x)) || b.any(|x| t.contains(&x))
+    fully_overlap((t.clone(), b.clone()))
+        || t.clone().any(|x| b.contains(&x))
+        || b.any(|x| t.contains(&x))
 }
 
 #[cfg(test)]
@@ -31,7 +35,7 @@ pub mod tests {
     use super::*;
 
     #[test]
-    pub fn parser_test () {
+    pub fn parser_test() {
         assert_eq!(pair_range("0-1,4-6"), Ok((0..2, 4..7)));
         assert_eq!(pair_range("69-420,24-55"), Ok((69..421, 24..56)));
     }
