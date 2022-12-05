@@ -28,6 +28,8 @@ fn overlap_at_all((t, mut b): (Range<u32>, Range<u32>)) -> bool {
 
 #[cfg(test)]
 pub mod tests {
+    use super::*;
+
     #[test]
     pub fn parser_test () {
         assert_eq!(pair_range("0-1,4-6"), Ok((0..2, 4..7)));
