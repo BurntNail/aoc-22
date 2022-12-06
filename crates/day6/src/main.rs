@@ -17,15 +17,14 @@ fn main() {
         for (wi, (i, c)) in window.iter().enumerate() {
             let new = chars | (1 << (*c as u8 - b'a'));
             if new == chars {
-                break; //didn't work, have enountered a repeated
+                break; 
             }
 
             if wi == MSG_LEN - 1 {
                 end_index = i + 1; 
                 break 'outer;
-            } else {
-                chars = new;
             }
+            chars = new;
         }
     }
 
