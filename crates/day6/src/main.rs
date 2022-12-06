@@ -1,25 +1,33 @@
 #![warn(clippy::all, clippy::nursery, clippy::pedantic)]
 
-use std::collections::HashMap;
+use std::{time::Instant};
 
 const MSG_LEN: usize = 14; //4 for p1, 14 for p2
 
 
 fn main() {
+    let timer = Instant::now();
+
     let input: Vec<_> = include_str!("input.txt").chars().enumerate().collect();
 
     let mut end_index = 0;
-    for window in input.windows(MSG_LEN) {
-        let mut containers: HashMap<char, u32> = HashMap::new();
-        for (_, c) in window {
-            *containers.entry(*c).or_default() += 1;
-        }
+    'outer: for window in input.windows(MSG_LEN) {
 
-        if containers.iter().all(|(_, no)| no == &1) {
-            end_index = window[MSG_LEN - 1].0 + 1; 
-            break;
+        let mut chars = 0_u32;
+        for (wi, (i, c)) in window.iter().enumerate() {
+            let new = chars | (1 << (*c as u8 - b'a'));
+            if new == chars {
+                break; //didn't work, have enountered a repeated
+            }
+
+            if wi == MSG_LEN - 1 {
+                end_index = i + 1; 
+                break 'outer;
+            } else {
+                chars = new;
+            }
         }
     }
 
-    println!("EI: {end_index:?}");
+    println!("EI: {end_index:?} TT: {:?}", timer.elapsed()); //2 or 3 ms for pre-optimisation
 }
