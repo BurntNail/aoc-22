@@ -3,7 +3,7 @@
 use std::collections::HashSet;
 
 fn main() {
-    let input = include_str!("input.txt").lines().map(|l| l.trim());
+    let input = include_str!("input.txt").lines().map(str::trim);
     let collected: Vec<_> = input.collect::<Vec<_>>();
     let list = collected
         .chunks(3) //Change the no of chunks for p1 vs p2
@@ -12,12 +12,12 @@ fn main() {
 
     println!(
         "Sum of similar values = {}",
-        list.map(|x| x as u32).sum::<u32>()
+        list.map(u32::from).sum::<u32>()
     );
 }
 
 fn line_to_similar_value(lines: &[&str]) -> char {
-    let mut hs: HashSet<char> = HashSet::from_iter(('a'..='z').chain('A'..='Z'));
+    let mut hs: HashSet<char> = ('a'..='z').chain('A'..='Z').collect();
 
     for l in lines {
         let hs_local: HashSet<_> = l.chars().collect();
@@ -27,7 +27,8 @@ fn line_to_similar_value(lines: &[&str]) -> char {
     *hs.iter().next().expect("needs intersection")
 }
 
-fn char_to_priority(b: char) -> u8 {
+#[must_use]
+pub const fn char_to_priority(b: char) -> u8 {
     let b = b as u8;
     match b {
         b'a'..=b'z' => b - b'a' + 1,

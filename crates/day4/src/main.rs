@@ -15,13 +15,13 @@ fn main() {
         .lines()
         .map(|l| pair_range(l.trim()).expect("unable to parse"))
         .map(overlap_at_all) //swap for p1 vs p2
-        .map(|b| b as u32)
+        .map(u32::from)
         .sum::<u32>();
 
     println!("Pair sums is {covered}");
 }
 
-fn fully_overlap((t, b): (Range<u32>, Range<u32>)) -> bool {
+const fn fully_overlap((t, b): (Range<u32>, Range<u32>)) -> bool {
     (t.start >= b.start && t.end <= b.end) || (t.start <= b.start && t.end >= b.end)
 }
 fn overlap_at_all((t, mut b): (Range<u32>, Range<u32>)) -> bool {

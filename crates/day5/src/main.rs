@@ -43,7 +43,7 @@ fn find_vertical_buckets(input: &[String], no_crate_rows: usize) -> Result<Vec<V
 }
 
 fn execute_instructions(
-    buckets: &mut Vec<Vec<char>>,
+    buckets: &mut [Vec<char>],
     input: &[String],
     no_crate_rows: usize,
     is_p1: bool,
@@ -78,7 +78,7 @@ fn main() -> Result<()> {
     let mut buckets = find_vertical_buckets(&input, no_crate_rows)?;
     execute_instructions(&mut buckets, &input, no_crate_rows, true)?;
 
-    for mut b in buckets.into_iter() {
+    for mut b in buckets {
         print!("{}", b.pop().expect("element to pop"));
     }
 
