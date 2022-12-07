@@ -2,12 +2,10 @@ use itertools::Itertools;
 
 pub enum FolderContents {
     Directory(String),
-    File {
-        name: String,
-        size: usize
-    }
+    File { name: String, size: u64 },
 }
-impl TryFrom<String> for FolderContents { //TODO: Rempve clones, iters to speed up, but only once I've got a criterion build
+impl TryFrom<String> for FolderContents {
+    //TODO: Rempve clones, iters to speed up, but only once I've got a criterion build
     type Error = color_eyre::Report;
 
     fn try_from(value: String) -> Result<Self, Self::Error> {
@@ -20,7 +18,9 @@ impl TryFrom<String> for FolderContents { //TODO: Rempve clones, iters to speed 
             chars.remove(0);
             chars.remove(0);
 
-            return Ok(FolderContents::Directory(chars.into_iter().map(|c| c.to_string()).join("")));
+            Ok(Self::Directory(
+                chars.into_iter().map(|c| c.to_string()).join(""),
+            ))
         } else {
             let mut size = String::default();
             loop {
@@ -31,7 +31,11 @@ impl TryFrom<String> for FolderContents { //TODO: Rempve clones, iters to speed 
                 size.push(c);
             }
             let size = size.parse()?;
-            return Ok(FolderContents::File { name: chars.into_iter().map(|c| c.to_string()).join(""), size })
+
+            Ok(Self::File {
+                name: chars.into_iter().map(|c| c.to_string()).join(""),
+                size,
+            })
         }
     }
 }

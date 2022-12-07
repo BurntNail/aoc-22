@@ -3,14 +3,14 @@ $ ls
 dir bgmjrlz
 dir bhp
 dir cbcwz
-169838 fddw.bgw
+1698 fddw.bgw
 dir fvhmzqc
 dir hqmlnpn
-248637 jtwpn.lnr
+237 jtwpn.lnr
 319470 lnmrrht.zbn
-99548 pqpslbtn
+998 pqpslbtn
 dir rbztmqjn
-102720 rqpt
+720 rqpt
 dir vfrtt
 $ cd bgmjrlz
 $ ls
@@ -34,4 +34,4 @@ $ cd ..
 $ cd jlfz
 $ ls
 dir hgzg
-189290 wgdffcr
+18920 wgdffcr
