@@ -1,9 +1,7 @@
 #![warn(clippy::all, clippy::nursery, clippy::pedantic)]
 
 use std::{time::Instant};
-
 const MSG_LEN: usize = 14; //4 for p1, 14 for p2
-
 
 fn main() {
     let timer = Instant::now();
