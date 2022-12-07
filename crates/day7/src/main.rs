@@ -13,19 +13,20 @@ mod true_file_repr;
 pub struct FileIntermediary {
     pub name: String,
     pub path: String,
-    pub size: usize, 
+    pub size: usize,
 }
 
 impl FileIntermediary {
-    pub fn new(name: String, path: String, size: usize) -> Self { Self { name, path, size } }
+    pub fn new(name: String, path: String, size: usize) -> Self {
+        Self { name, path, size }
+    }
 }
 
-
-
-fn main() -> color_eyre::Result<()> { //TODO: Bounds checks to remove panics
+fn main() -> color_eyre::Result<()> {
+    //TODO: Bounds checks to remove panics
     color_eyre::install()?;
 
-    let input: Vec<_> = include_str!("input.txt")
+    let input: Vec<_> = include_str!("sample.txt")
         .lines()
         .map(|l| l.trim().to_string())
         .collect();
@@ -43,7 +44,9 @@ fn main() -> color_eyre::Result<()> { //TODO: Bounds checks to remove panics
                         if split.is_empty() {
                             current_dir = "/".into();
                         } else {
-                            current_dir = String::from("/") + &split[1..split.len() - 2].join("/") + "/"; //Due to starting and ending slashes, we don't want the outer-most elements
+                            current_dir =
+                                String::from("/") + &split[1..split.len() - 2].join("/") + "/";
+                            //Due to starting and ending slashes, we don't want the outer-most elements
                         }
                     }
                     DirectoryChange::Root => {
@@ -62,7 +65,9 @@ fn main() -> color_eyre::Result<()> { //TODO: Bounds checks to remove panics
         } else {
             match FolderContents::try_from(line)? {
                 FolderContents::Directory(dir) => directories.push(current_dir.clone() + &dir),
-                FolderContents::File { name, size } => intermediaries.push(FileIntermediary::new(name, current_dir.clone(), size)),
+                FolderContents::File { name, size } => {
+                    intermediaries.push(FileIntermediary::new(name, current_dir.clone(), size))
+                }
             }
         }
     }
