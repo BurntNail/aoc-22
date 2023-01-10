@@ -5,3 +5,4 @@ members = ["crates/*"]
 color-eyre = "0.6.2"
 peg = "0.8.1"
 itertools = "0.10.5"
+utilities = {version = "0.1.0", path = "crates/utilities"}
