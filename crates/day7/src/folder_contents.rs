@@ -5,7 +5,6 @@ pub enum FolderContents {
     File { name: String, size: u64 },
 }
 impl TryFrom<String> for FolderContents {
-    //TODO: Rempve clones, iters to speed up, but only once I've got a criterion build
     type Error = color_eyre::Report;
 
     fn try_from(value: String) -> Result<Self, Self::Error> {
