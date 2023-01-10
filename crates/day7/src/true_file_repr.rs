@@ -1,5 +1,7 @@
 use crate::FileIntermediary;
 use itertools::Itertools;
+use std::{collections::HashMap, hash::Hash};
+use utilities::vec_utils::VecUtils;
 
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub enum Item {
@@ -8,51 +10,30 @@ pub enum Item {
 }
 
 impl Item {
-    pub fn from(
-        files: &Vec<FileIntermediary>,
-        folders: &Vec<Vec<String>>,
-        start_path: Option<Vec<String>>,
-    ) -> Self {
-        let mut start_path = start_path.unwrap_or_default();
-
-        let mut cd_items = files
-            .clone()
-            .into_iter()
-            .filter(|f| f.path == start_path)
-            .map(|item| {
-                let FileIntermediary {
-                    name,
-                    path: _,
-                    size,
-                } = item;
-                Self::File { name, size }
-            })
-            .collect_vec();
-
-        let cd_folders = folders.clone().into_iter().filter(|f| {
-            start_path.iter().zip(f).all(|(a, b)| a == b) && f.len() == start_path.len() + 1
+    pub fn from(mut files: Vec<FileIntermediary>, name: Option<String>) -> Self {
+        let mut cd_items = files.take_and_return(|f| f.path.is_empty()).map(|fi| {
+            let FileIntermediary {
+                name,
+                path: _,
+                size,
+            } = fi;
+            Self::File { name, size }
         });
 
-        for folder in cd_folders {
-            let dir_down_folders = folders
-                .clone()
-                .into_iter()
-                .filter(|f| {
-                    folder.iter().zip(f).all(|(a, b)| a == b) && f.len() == folder.len() + 1
-                })
-                .collect_vec();
-            let dir_down_files = files
-                .clone()
-                .into_iter()
-                .filter(|f| folder.iter().zip(&f.path).all(|(a, b)| a == b))
-                .collect_vec();
+        let mut subdirectories: HashMap<_, Vec<_>> = HashMap::new();
 
-            let folder_items = Self::from(&dir_down_files, &dir_down_folders, Some(folder));
-            cd_items.push(folder_items);
+        for mut file in files {
+            let base_dir_in_me = file.path.remove(0);
+            let sd = subdirectories.entry(base_dir_in_me.clone()).or_default();
+            sd.push(file);
         }
 
+        subdirectories
+            .into_iter()
+            .for_each(|(subd_name, cntnts)| cd_items.push(Item::from(cntnts, Some(subd_name))));
+
         Self::Folder {
-            name: start_path.pop().unwrap_or_else(|| "/".into()),
+            name: name.unwrap_or_default(),
             contents: cd_items,
         }
     }

@@ -8,6 +8,9 @@
       <sourceFolder url="file://$MODULE_DIR$/crates/day3/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/crates/day4/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/crates/day5/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/crates/day6/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/crates/day7/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/crates/utilities/src" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
     </content>
     <orderEntry type="inheritedJdk" />
