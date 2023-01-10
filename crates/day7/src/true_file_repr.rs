@@ -1,6 +1,5 @@
 use crate::FileIntermediary;
-use itertools::Itertools;
-use std::{collections::HashMap, hash::Hash};
+use std::collections::HashMap;
 use utilities::vec_utils::VecUtils;
 
 #[derive(Debug, Clone, Eq, PartialEq)]
@@ -30,7 +29,7 @@ impl Item {
 
         subdirectories
             .into_iter()
-            .for_each(|(subd_name, cntnts)| cd_items.push(Item::from(cntnts, Some(subd_name))));
+            .for_each(|(subd_name, cntnts)| cd_items.push(Self::from(cntnts, Some(subd_name))));
 
         Self::Folder {
             name: name.unwrap_or_default(),
@@ -64,7 +63,7 @@ impl Item {
         tot
     }
 
-    pub fn get_folders_with_size(&self, less_than_oe: u64) -> Vec<Self> {
+    pub fn get_folders_lte_size(&self, less_than_oe: u64) -> Vec<Self> {
         let mut v = vec![];
 
         if self.full_contents() <= less_than_oe && self.is_folder() {
@@ -74,11 +73,35 @@ impl Item {
         if let Self::Folder { name: _, contents } = self {
             if !contents.is_empty() {
                 for f in contents.iter().filter(|f| f.is_folder()) {
-                    v.append(&mut f.get_folders_with_size(less_than_oe));
+                    v.append(&mut f.get_folders_lte_size(less_than_oe));
                 }
             }
         }
 
         v
+    }
+
+    pub fn get_folders_gte_size(&self, greater_than_oe: u64) -> Vec<Self> {
+        let mut v = vec![];
+
+        if self.full_contents() >= greater_than_oe && self.is_folder() {
+            v.push(self.clone());
+        }
+
+        if let Self::Folder { name: _, contents } = self {
+            if !contents.is_empty() {
+                for f in contents.iter().filter(|f| f.is_folder()) {
+                    v.append(&mut f.get_folders_gte_size(greater_than_oe));
+                }
+            }
+        }
+
+        v
+    }
+
+    pub fn name(&self) -> &str {
+        match self {
+            Self::Folder { name, .. } | Self::File { name, .. } => name,
+        }
     }
 }

@@ -1,7 +1,7 @@
 use itertools::Itertools;
 
 pub enum Command {
-    ChangeDirectory(DirectoryChange), //If None, go back a directory
+    ChangeDirectory(DirectoryChange),
     ListFiles,
 }
 pub enum DirectoryChange {

@@ -1,6 +1,7 @@
 #![warn(clippy::all, clippy::nursery, clippy::pedantic)]
 
 #[derive(Debug, Clone, Copy)]
+#[allow(clippy::upper_case_acronyms)]
 enum RPS {
     Rock,
     Paper,
@@ -75,6 +76,6 @@ fn main() {
         .reduce(|accum, item| (accum.0 + item.0, accum.1 + item.1))
         .unwrap();
 
-    println!("Total Score: {}", scores);
-    println!("Total Score WDL: {}", scores_wdl);
+    println!("Total Score: {scores}");
+    println!("Total Score WDL: {scores_wdl}");
 }

@@ -71,20 +71,34 @@ fn main() -> color_eyre::Result<()> {
     }
 
     let root = Item::from(intermediaries, None);
-    part1(root);
+    part1(&root);
+    println!("\n");
+    part2(&root);
 
     Ok(())
 }
 
-fn part1(root: Item) {
+fn part1(root: &Item) {
     let max = 100_000;
-    let lt = root.get_folders_with_size(max);
-
-    let mut tot = 0;
-    for f in lt {
-        println!("{f:#?}\n\n");
-        tot += f.full_contents();
-    }
+    let tot: u64 = root
+        .get_folders_lte_size(max)
+        .into_iter()
+        .map(|x| x.full_contents())
+        .sum();
 
     println!("Sum of <= {max} = {tot:?}");
+}
+
+fn part2(root: &Item) {
+    let space_needed_to_be_free = {
+        let target_size = 70_000_000_u64 - 30_000_000_u64;
+        let current_size = root.full_contents();
+        current_size - target_size
+    };
+
+    let mut workers = root.get_folders_gte_size(space_needed_to_be_free);
+    workers.sort_by_key(Item::full_contents);
+    let w = workers.remove(0);
+    println!("{space_needed_to_be_free} - all needs to be free");
+    println!("{} {} - Should be deleted", w.full_contents(), w.name());
 }
