@@ -11,7 +11,7 @@ pub enum Direction {
     Right,
 }
 #[derive(Copy, Clone, Debug)]
-pub struct Instruction(Direction, usize);
+pub struct Instruction(pub Direction, pub i32);
 
 impl From<String> for Instruction {
     fn from(mut value: String) -> Self {
@@ -24,7 +24,16 @@ impl From<String> for Instruction {
             _ => unreachable!("bad input"),
         };
         value.remove(0);
-        Self(dir, value.parse().expect("unable to parse number"))
+        Self(
+            dir,
+            value.parse::<u16>().expect("unable to parse number") as i32,
+        )
+    }
+}
+
+impl Instruction {
+    pub fn to_singles(self) -> Vec<Direction> {
+        return vec![self.0; self.1 as usize];
     }
 }
 
@@ -39,6 +48,7 @@ impl From<String> for Program {
                 .lines()
                 .map(|s| s.to_string())
                 .map(Instruction::from)
+                .flat_map(Instruction::to_singles)
                 .collect(),
         )
     }
