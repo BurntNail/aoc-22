@@ -71,57 +71,28 @@ impl Grid {
                     continue;
                 }
 
-                let mut score = 1; //assumption - everyone can see at least 1 tree. likely unimportant for top scoring tree
+                let mut score = 1;
 
-                let range_left = 0..col;
-                let range_right = col + 1..cl;
-                if col != 0 {
-                    let left_score = range_left
-                        .clone()
-                        .rev()
-                        .map(|col_test| self.0[(row, col_test)] < height)
-                        .position(|x| !x)
-                        .unwrap_or_else(|| range_left.count());
-                    if left_score != 0 {
-                        score *= left_score;
-                    }
-                }
-                if col != cl - 1 {
-                    let right_score = range_right
-                        .clone()
-                        .map(|col_test| self.0[(row, col_test)] < height)
-                        .position(|x| !x)
-                        .unwrap_or_else(|| range_right.count());
-                    if right_score != 0 {
-                        score *= right_score;
-                    }
-                }
+                let test_row = |row_test: usize| self.0[(row_test, col)] < height;
+                let test_col = |col_test: usize| self.0[(row, col_test)] < height;
 
-                let range_up = 0..row;
-                let range_down = row + 1..rl;
-                if row != 0 {
-                    let up_score = range_up
+                let mut test_get_score = |range: Vec<usize>, test_func: &dyn Fn(usize) -> bool| {
+                    let this_score = range
                         .clone()
-                        .rev()
-                        .map(|row_test| self.0[(row_test, col)] < height)
+                        .into_iter()
+                        .map(test_func)
                         .position(|x| !x)
-                        .unwrap_or_else(|| range_up.count());
-                    if up_score != 0 {
-                        score *= up_score;
+                        .map(|x| x + 1)
+                        .unwrap_or_else(|| range.len());
+                    if this_score != 0 {
+                        score *= this_score;
                     }
-                }
-                if row != rl - 1 {
-                    let down_score = range_down
-                        .clone()
-                        .map(|row_test| self.0[(row_test, col)] < height)
-                        .position(|x| !x)
-                        .unwrap_or_else(|| range_down.count());
-                    if down_score != 0 {
-                        score *= down_score;
-                    }
-                }
+                };
 
-                println!("{row},{col} is {score}");
+                test_get_score((0..col).rev().into_iter().collect::<Vec<_>>(), &test_col); //left
+                test_get_score(((col + 1)..cl).into_iter().collect::<Vec<_>>(), &test_col); //right
+                test_get_score((0..row).rev().into_iter().collect::<Vec<_>>(), &test_row); //up
+                test_get_score(((row + 1)..rl).into_iter().collect::<Vec<_>>(), &test_row); //down
 
                 sc.push(score);
             }
