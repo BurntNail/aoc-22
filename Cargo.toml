@@ -7,4 +7,3 @@ peg = "0.8.1"
 itertools = "0.10.5"
 utilities = {version = "0.1.0", path = "crates/utilities"}
 array2d = "0.3.0"
-drawing-squares = "0.1.0"
