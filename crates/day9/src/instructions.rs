@@ -48,9 +48,14 @@ impl From<String> for Program {
                 .lines()
                 .map(|s| s.to_string())
                 .map(Instruction::from)
-                .flat_map(Instruction::to_singles)
                 .collect(),
         )
+    }
+}
+
+impl Program {
+    pub fn to_singles (self) -> Vec<Direction> {
+        self.0.into_iter().flat_map(Instruction::to_singles).collect()
     }
 }
 
