@@ -10,12 +10,24 @@ pub enum Direction {
     Left,
     Right,
 }
+
+impl Direction {
+    pub const fn opposite(self) -> Self {
+        match self {
+            Self::Up => Self::Down,
+            Self::Down => Self::Up,
+            Self::Left => Self::Right,
+            Self::Right => Self::Left,
+        }
+    }
+}
+
 #[derive(Copy, Clone, Debug)]
 pub struct Instruction(pub Direction, pub i32);
 
 impl From<String> for Instruction {
     fn from(mut value: String) -> Self {
-        use Direction::*;
+        use Direction::{Down, Left, Right, Up};
         let dir = match value.remove(0) {
             'U' => Up,
             'D' => Down,
@@ -26,14 +38,19 @@ impl From<String> for Instruction {
         value.remove(0);
         Self(
             dir,
-            value.parse::<u16>().expect("unable to parse number") as i32,
+            i32::from(value.parse::<u16>().expect("unable to parse number")),
         )
     }
 }
 
 impl Instruction {
+    #[allow(clippy::cast_sign_loss)] //checked in function
     pub fn to_singles(self) -> Vec<Direction> {
-        return vec![self.0; self.1 as usize];
+        if self.1 < 0 {
+            vec![self.0.opposite(); self.1.unsigned_abs() as usize]
+        } else {
+            vec![self.0; self.1 as usize]
+        }
     }
 }
 
@@ -46,7 +63,7 @@ impl From<String> for Program {
         Self(
             value
                 .lines()
-                .map(|s| s.to_string())
+                .map(std::string::ToString::to_string)
                 .map(Instruction::from)
                 .collect(),
         )
@@ -54,8 +71,11 @@ impl From<String> for Program {
 }
 
 impl Program {
-    pub fn to_singles (self) -> Vec<Direction> {
-        self.0.into_iter().flat_map(Instruction::to_singles).collect()
+    pub fn into_singles(self) -> Vec<Direction> {
+        self.0
+            .into_iter()
+            .flat_map(Instruction::to_singles)
+            .collect()
     }
 }
 
