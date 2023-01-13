@@ -50,9 +50,9 @@ fn p2(singles: Vec<Direction>, no: usize) -> usize {
 
 ///Returns the new tail
 fn follow((mut tx, mut ty): (i32, i32), (hx, hy): (i32, i32)) -> (i32, i32) {
-    let (dx, dy) = (hx - tx, hy - ty);
+    let (delta_x, delta_y) = (hx - tx, hy - ty);
 
-    let (addx, addy) = match (dx, dy) {
+    let (add_x, add_y) = match (delta_x, delta_y) {
         (1 | 2, 2) | (2, 1) => (1, 1),
         (-1 | -2, 2) | (-2, 1) => (-1, 1),
         (1 | 2, -2) | (2, -1) => (1, -1),
@@ -62,11 +62,11 @@ fn follow((mut tx, mut ty): (i32, i32), (hx, hy): (i32, i32)) -> (i32, i32) {
         (2, 0) => (1, 0),
         (-2, 0) => (-1, 0),
         (0 | 1 | -1, 0 | 1 | -1) => (0, 0),
-        _ => panic!("Unseen dx dy: {dx},{dy}"),
+        _ => panic!("Unseen dx dy: {delta_x},{delta_y}"),
     };
 
-    tx += addx;
-    ty += addy;
+    tx += add_x;
+    ty += add_y;
 
     (tx, ty)
 }
