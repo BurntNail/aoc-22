@@ -1,14 +1,18 @@
+use std::num::ParseIntError;
+
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum Instruction {
     NoOp,
     PreAdd,
     AddX(i32),
 }
-impl From<&str> for Instruction {
-    fn from(value: &str) -> Self {
+impl TryFrom<&str> for Instruction {
+    type Error = ParseIntError;
+
+    fn try_from(value: &str) -> Result<Self, Self::Error> {
         match &value[0..4] {
-            "noop" => Self::NoOp,
-            "addx" => Self::AddX(value[5..].parse().expect("failed to parse")),
+            "noop" => Ok(Self::NoOp),
+            "addx" => Ok(Self::AddX(value[5..].parse()?)),
             _ => panic!("failed to parse instruction"),
         }
     }
@@ -27,16 +31,20 @@ pub struct Program {
     x: i32,
     instructions: Vec<Instruction>,
 }
-impl From<String> for Program {
-    fn from(value: String) -> Self {
-        Self {
+impl TryFrom<String> for Program {
+    type Error = ParseIntError;
+
+    fn try_from(value: String) -> Result<Self, Self::Error> {
+        Ok(Self {
             x: 1,
             instructions: value
                 .lines()
-                .map(Instruction::from)
+                .map(Instruction::try_from)
+                .collect::<Result<Vec<_>, _>>()?
+                .into_iter()
                 .flat_map(Instruction::to_preadd)
                 .collect(),
-        }
+        })
     }
 }
 
@@ -72,12 +80,10 @@ impl Program {
         signals
     }
 
-    pub fn part_2 (x: Vec<i32>, width: usize) {
-
+    pub fn part_2(x: Vec<i32>, width: usize) {
         let mut screen_pos = 0;
 
         for x in x {
-
             if (screen_pos as i32 - x).abs() <= 1 {
                 print!("#")
             } else {
@@ -100,7 +106,7 @@ mod tests {
 
     #[test]
     fn from_string_instr_tester() {
-        let pf = |x| Instruction::from(x);
+        let pf = |x| Instruction::try_from(x).unwrap();
         assert_eq!(pf("addx 1"), Instruction::AddX(1));
         assert_eq!(pf("addx 654"), Instruction::AddX(654));
         assert_eq!(pf("addx -1"), Instruction::AddX(-1));

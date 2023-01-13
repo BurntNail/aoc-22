@@ -11,6 +11,6 @@ fn main() {
     println!("{:#?}", grid.can_see_edge());
 
     let mut scores = grid.scenic_scores();
-    scores.sort();
+    scores.sort_unstable();
     println!("Top Score: {:?}", scores.pop().unwrap());
 }

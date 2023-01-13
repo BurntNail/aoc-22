@@ -82,8 +82,7 @@ impl Grid {
                         .into_iter()
                         .map(test_func)
                         .position(|x| !x)
-                        .map(|x| x + 1)
-                        .unwrap_or_else(|| range.len());
+                        .map_or_else(|| range.len(), |x| x + 1);
                     if this_score != 0 {
                         score *= this_score;
                     }
