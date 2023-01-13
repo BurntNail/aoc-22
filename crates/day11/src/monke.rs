@@ -11,7 +11,7 @@ use nom::{
     IResult,
 };
 use std::collections::VecDeque;
-use utilities::nom_utils::remove_spaces;
+use utilities::{int_utils::DivExt, nom_utils::remove_spaces};
 
 type IntItem = u128;
 fn int_item(input: &str) -> IResult<&str, IntItem> {
@@ -119,13 +119,39 @@ impl Monkey {
             },
         ))
     }
+
+    pub fn run_round(&mut self) -> Vec<(IntItem, usize)> {
+        let mut transfers = Vec::with_capacity(self.items.len());
+
+        for mut next_item in std::mem::take(&mut self.items) {
+            next_item = self.operation.run(next_item).div_round_down(3);
+
+            transfers.push((
+                next_item,
+                if next_item % self.test == 0 {
+                    self.if_true
+                } else {
+                    self.if_false
+                },
+            ));
+        }
+
+        transfers
+    }
+
+    pub fn add_item(&mut self, i: IntItem) {
+        self.items.push_back(i);
+    }
+
+    pub fn clone_items(&self) -> Vec<IntItem> {
+        self.items.clone().into()
+    }
 }
 
 pub fn parse_multiple_monkeys(input: &str) -> IResult<&str, Vec<Monkey>> {
     let no_lines = dbg!(input.lines().count());
-    let number = dbg!(no_lines / 6 - 1);
-
-    count(Monkey::monkey, 8)(input)
+    let number = dbg!(no_lines.div_round_down(6) - 1);
+    count(Monkey::monkey, number)(input)
 }
 
 #[cfg(test)]
