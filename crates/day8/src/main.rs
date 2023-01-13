@@ -1,8 +1,10 @@
+#![warn(clippy::all, clippy::pedantic, clippy::nursery)]
+
 use crate::map::Grid;
 
 mod map;
 
-fn main() -> Result<(), Box<dyn std::error::Error>> {
+fn main() {
     let input = include_str!("input.txt");
     let grid = Grid::from(input.to_string());
 
@@ -11,6 +13,4 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut scores = grid.scenic_scores();
     scores.sort();
     println!("Top Score: {:?}", scores.pop().unwrap());
-
-    Ok(())
 }
