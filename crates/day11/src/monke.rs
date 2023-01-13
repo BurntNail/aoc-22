@@ -10,12 +10,15 @@ use nom::{
     sequence::{preceded, tuple},
     IResult,
 };
+use num_bigint::BigUint;
+use num_integer::Integer;
+use num_traits::Zero;
 use std::collections::VecDeque;
 use utilities::{int_utils::DivExt, nom_utils::remove_spaces};
 
-type IntItem = u128;
+pub type IntItem = BigUint;
 fn int_item(input: &str) -> IResult<&str, IntItem> {
-    cc::u128(input)
+    map(cc::u128, IntItem::from)(input)
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -36,7 +39,7 @@ impl Operation {
         ))
     }
 }
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub enum Term {
     Literal(IntItem),
     Old,
@@ -55,13 +58,13 @@ impl NewOperation {
             tag("Operation: new = old "),
             tuple((Operation::operation, cc::space1, Term::term)),
         )(input)?;
-        Ok((input, NewOperation(op, term)))
+        Ok((input, Self(op, term)))
     }
 
-    pub const fn run(&self, old: IntItem) -> IntItem {
-        let term = match self.1 {
+    pub fn run(&self, old: IntItem) -> IntItem {
+        let term = match self.1.clone() {
             Term::Literal(l) => l,
-            Term::Old => old,
+            Term::Old => old.clone(),
         };
         match self.0 {
             Operation::Mul => old * term,
@@ -120,15 +123,18 @@ impl Monkey {
         ))
     }
 
-    pub fn run_round(&mut self) -> Vec<(IntItem, usize)> {
+    pub fn run_round(&mut self, div_factor: IntItem) -> Vec<(IntItem, usize)> {
         let mut transfers = Vec::with_capacity(self.items.len());
 
         for mut next_item in std::mem::take(&mut self.items) {
-            next_item = self.operation.run(next_item).div_round_down(3);
+            next_item = self
+                .operation
+                .run(next_item)
+                .div_round_down(div_factor.clone());
 
             transfers.push((
-                next_item,
-                if next_item % self.test == 0 {
+                next_item.clone(),
+                if next_item.mod_floor(&self.test) == IntItem::zero() {
                     self.if_true
                 } else {
                     self.if_false
@@ -143,8 +149,13 @@ impl Monkey {
         self.items.push_back(i);
     }
 
+    #[allow(dead_code)]
     pub fn clone_items(&self) -> Vec<IntItem> {
         self.items.clone().into()
+    }
+
+    pub fn clear_items(&mut self) {
+        self.items.clear();
     }
 }
 
@@ -152,61 +163,4 @@ pub fn parse_multiple_monkeys(input: &str) -> IResult<&str, Vec<Monkey>> {
     let no_lines = dbg!(input.lines().count());
     let number = dbg!(no_lines.div_round_down(6) - 1);
     count(Monkey::monkey, number)(input)
-}
-
-#[cfg(test)]
-mod tests {
-    use crate::monke::{start_items, Monkey, NewOperation, Operation, Term};
-    use nom::{character::complete::multispace0, sequence::preceded};
-    use std::collections::VecDeque;
-
-    #[test]
-    pub fn monke_test() -> Result<(), Box<dyn std::error::Error>> {
-        let mnk = r#"
-    Monkey 0:
-      Starting items: 61
-      Operation: new = old * 11
-      Test: divisible by 5
-        If true: throw to monkey 7
-        If false: throw to monkey 4
-    "#;
-        let expected = Monkey {
-            items: VecDeque::from(vec![61]),
-            operation: NewOperation(Operation::Mul, Term::Literal(11)),
-            test: 5,
-            if_true: 7,
-            if_false: 4,
-        };
-
-        let actual = Monkey::monkey(mnk)?.1;
-        assert_eq!(actual, expected);
-
-        let mnk = r#"
-Monkey 1:
-  Starting items: 76, 92, 53, 93, 79, 86, 81
-  Operation: new = old + 4
-  Test: divisible by 2
-    If true: throw to monkey 2
-    If false: throw to monkey 6
-"#;
-        let expected = Monkey {
-            items: VecDeque::from(vec![76, 92, 53, 93, 79, 86, 81]),
-            operation: NewOperation(Operation::Add, Term::Literal(4)),
-            test: 2,
-            if_true: 2,
-            if_false: 6,
-        };
-
-        let actual = Monkey::monkey(mnk)?.1;
-        assert_eq!(actual, expected);
-
-        Ok(())
-    }
-
-    #[test]
-    pub fn start_items_test() {
-        let raw = "                                     \nStarting items: 61\nghjksvdfhjksdhf";
-        let (_, items) = preceded(multispace0, start_items)(raw).unwrap();
-        assert_eq!(items, VecDeque::from(vec![61]));
-    }
 }

@@ -8,3 +8,6 @@ itertools = "0.10.5"
 utilities = {version = "0.1.0", path = "crates/utilities"}
 array2d = "0.3.0"
 nom = "7.1.2"
+num-bigint = "0.4.3"
+num-integer = "0.1.45"
+num-traits = "0.2.15"

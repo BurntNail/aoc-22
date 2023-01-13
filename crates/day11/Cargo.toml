@@ -8,3 +8,6 @@ edition = "2021"
 [dependencies]
 nom.workspace = true
 utilities.workspace = true
+num-bigint.workspace = true
+num-traits.workspace = true
+num-integer.workspace = true
