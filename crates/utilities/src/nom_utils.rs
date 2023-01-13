@@ -1,15 +1,6 @@
-use nom::error::{ErrorKind, ParseError};
 use nom::{
-    character::{complete::multispace0, is_digit},
-    // error::{make_error, ErrorKind, ParseError},
-    sequence::tuple,
-    AsChar,
-    IResult,
-    InputIter,
-    InputLength,
-    InputTake,
-    InputTakeAtPosition,
-    Parser,
+    character::complete::multispace0, error::ParseError, sequence::tuple, AsChar, IResult,
+    InputIter, InputLength, InputTake, InputTakeAtPosition, Parser,
 };
 
 pub fn remove_spaces<I, O1, E: ParseError<I>, F>(parser: F) -> impl FnMut(I) -> IResult<I, O1, E>

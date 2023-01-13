@@ -3,30 +3,19 @@
 
 use crate::monke::{parse_multiple_monkeys, IntItem, Monkey};
 use num_traits::One;
-use std::{iter::Inspect, time::Instant};
 
 mod monke;
 
 fn part(mut monkeys: Vec<Monkey>, no_rounds: usize, div_factor: IntItem) -> Vec<usize> {
     let mut transactions = vec![0; monkeys.len()];
-    let mut start = Instant::now();
+    let divisor_product = monkeys.iter().map(|m| m.test.clone()).product::<IntItem>(); //not funny, aoc: https://fasterthanli.me/series/advent-of-code-2022/part-11#math-check
 
-    let round_mark = no_rounds / 500.min(no_rounds);
-    for round_no in 0..no_rounds {
-        if round_no % round_mark == 0 {
-            println!("Starting round {round_no} at {:?}", start.elapsed());
-        }
-
+    for _ in 0..no_rounds {
         for i in 0..monkeys.len() {
-            println!("Monkey {i} starting with {:?}", monkeys[i].clone_items());
-
-            for (value, next_id) in monkeys[i].run_round(div_factor.clone()) {
+            for (value, next_id) in monkeys[i].run_round(div_factor.clone(), &divisor_product) {
                 transactions[i] += 1;
                 monkeys[next_id].add_item(value);
             }
-        }
-        if round_no % round_mark == 0 {
-            println!("Ending {round_no}  at {:?} \n\n", start.elapsed());
         }
     }
     transactions
@@ -39,8 +28,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     {
         let mut transactions = part(monkeys.clone(), 20, IntItem::from(3_u8));
         transactions.sort_unstable();
-
-        println!("{:?}", transactions.clone());
 
         println!(
             "MB: {}",

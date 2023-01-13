@@ -95,10 +95,10 @@ pub fn if_then_to(input: &str) -> IResult<&str, usize> {
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct Monkey {
     items: VecDeque<IntItem>,
-    operation: NewOperation,
-    test: IntItem,
-    if_true: usize,
-    if_false: usize,
+    pub operation: NewOperation,
+    pub test: IntItem,
+    pub if_true: usize,
+    pub if_false: usize,
 }
 
 impl Monkey {
@@ -123,13 +123,17 @@ impl Monkey {
         ))
     }
 
-    pub fn run_round(&mut self, div_factor: IntItem) -> Vec<(IntItem, usize)> {
+    pub fn run_round(
+        &mut self,
+        div_factor: IntItem,
+        divisor_product: &IntItem,
+    ) -> Vec<(IntItem, usize)> {
         let mut transfers = Vec::with_capacity(self.items.len());
 
         for mut next_item in std::mem::take(&mut self.items) {
             next_item = self
                 .operation
-                .run(next_item)
+                .run(next_item.mod_floor(divisor_product))
                 .div_round_down(div_factor.clone());
 
             transfers.push((
@@ -152,10 +156,6 @@ impl Monkey {
     #[allow(dead_code)]
     pub fn clone_items(&self) -> Vec<IntItem> {
         self.items.clone().into()
-    }
-
-    pub fn clear_items(&mut self) {
-        self.items.clear();
     }
 }
 
