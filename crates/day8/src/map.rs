@@ -21,8 +21,8 @@ impl From<String> for Grid {
 
 impl Grid {
     pub fn can_see_edge(&self) -> usize {
-        let rl = self.0.row_len();
-        let cl = self.0.column_len();
+        let rl = self.0.num_rows();
+        let cl = self.0.num_columns();
 
         let mut count = rl * 2 + cl * 2 - 4;
 

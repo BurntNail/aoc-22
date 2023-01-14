@@ -52,23 +52,24 @@ impl TryFrom<String> for Grid {
 
 impl Grid {
     pub fn to_places_i_can_get_to(&self) -> Array2D<Vec<(usize, usize)>> {
-        let row_len = self.0.row_len();
-        let col_len = self.0.column_len();
+        let row_len = self.0.num_rows();
+        let col_len = self.0.num_columns();
         let mut edges = Array2D::filled_with(vec![], row_len, col_len);
 
         for row in 0..row_len {
             for col in 0..col_len {
                 let mut deltas_to_check = vec![];
-                if row != 0 {
+
+                if row > 0 {
                     deltas_to_check.push((-1, 0));
                 }
-                if row != row_len - 1 {
+                if row < row_len - 1 {
                     deltas_to_check.push((1, 0));
                 }
-                if col != 0 {
+                if col > 0 {
                     deltas_to_check.push((0, -1));
                 }
-                if col != col_len - 1 {
+                if col < col_len - 1 {
                     deltas_to_check.push((0, 1));
                 }
 
