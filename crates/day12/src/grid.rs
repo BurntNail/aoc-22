@@ -83,7 +83,7 @@ impl Grid {
                     end = Some((row, col));
                 }
 
-                let elevation_max = node_here.elevation() + 1;
+                let elevation_min = node_here.elevation() - 1;
 
                 edges
                     .get_mut(row, col)
@@ -92,7 +92,7 @@ impl Grid {
                         let check_row = (row as i32 + dr) as usize;
                         let check_col = (col as i32 + dc) as usize;
 
-                        if self.0.get(check_row, check_col).unwrap().elevation() <= elevation_max {
+                        if self.0.get(check_row, check_col).unwrap().elevation() >= elevation_min {
                             Some((check_row, check_col))
                         } else {
                             None

@@ -1,3 +1,5 @@
+///Provides a trait for HashSet utilities
+pub mod collection_utilities;
 ///Provides integer-based utilities
 pub mod int_utils;
 ///Yay - more combinators and parsers!
