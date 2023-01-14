@@ -27,13 +27,13 @@ pub enum Operation {
     Add,
 }
 impl Operation {
-    pub fn operation(input: &str) -> IResult<&str, Operation> {
+    pub fn operation(input: &str) -> IResult<&str, Self> {
         let (input, op) = one_of("*+")(input)?;
         Ok((
             input,
             match op {
-                '*' => Operation::Mul,
-                '+' => Operation::Add,
+                '*' => Self::Mul,
+                '+' => Self::Add,
                 _ => unreachable!("nom shouldn't let us get here"),
             },
         ))
@@ -45,8 +45,8 @@ pub enum Term {
     Old,
 }
 impl Term {
-    pub fn term(input: &str) -> IResult<&str, Term> {
-        alt((map(int_item, Term::Literal), value(Term::Old, tag("old"))))(input)
+    pub fn term(input: &str) -> IResult<&str, Self> {
+        alt((map(int_item, Term::Literal), value(Self::Old, tag("old"))))(input)
     }
 }
 
@@ -125,7 +125,7 @@ impl Monkey {
 
     pub fn run_round(
         &mut self,
-        div_factor: IntItem,
+        div_factor: &IntItem,
         divisor_product: &IntItem,
     ) -> Vec<(IntItem, usize)> {
         let mut transfers = Vec::with_capacity(self.items.len());

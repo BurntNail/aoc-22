@@ -16,7 +16,7 @@ impl Graph {
         Self { can_reach, start }
     }
 
-    pub fn find_end(self, ends: Vec<Coord>) -> usize {
+    pub fn find_end(self, ends: &[Coord]) -> usize {
         let mut visited = HashSet::new();
         let mut current = HashMap::new();
         let mut steps = 0;
@@ -24,7 +24,7 @@ impl Graph {
         visited.insert(self.start);
         current.insert(self.start, NodeRecord(None));
 
-        while !visited.contains_any(&ends) {
+        while !visited.contains_any(ends) {
             steps += 1;
 
             for cell in visited.clone() {

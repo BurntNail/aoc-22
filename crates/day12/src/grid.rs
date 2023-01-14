@@ -52,14 +52,18 @@ impl TryFrom<String> for Grid {
 }
 
 impl Grid {
-    #[allow(clippy::cast_sign_loss)]
+    #[allow(
+        clippy::cast_sign_loss,
+        clippy::cast_possible_truncation,
+        clippy::cast_possible_wrap
+    )]
     ///returns the position of the end as well
     pub fn to_places_i_can_get_to(&self) -> (Coord, Array2D<Vec<Coord>>) {
         let row_len = self.0.num_rows();
         let col_len = self.0.num_columns();
 
         let mut edges = Array2D::filled_with(vec![], row_len, col_len);
-        let mut end = Default::default();
+        let mut end = None;
 
         for row in 0..row_len {
             for col in 0..col_len {

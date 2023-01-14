@@ -64,6 +64,7 @@ impl Program {
         signals
     }
 
+    #[allow(clippy::cast_possible_truncation, clippy::cast_possible_wrap)]
     pub fn to_signal_strengths(x: Vec<i32>, start: usize, multiples: usize) -> Vec<i32> {
         let mut signals = Vec::with_capacity((x.len() - start) / multiples + 1);
 
@@ -80,6 +81,7 @@ impl Program {
         signals
     }
 
+    #[allow(clippy::cast_possible_truncation, clippy::cast_possible_wrap)]
     pub fn part_2(x: Vec<i32>, width: usize) {
         let mut screen_pos = 0;
 
