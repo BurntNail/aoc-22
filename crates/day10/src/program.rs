@@ -85,9 +85,9 @@ impl Program {
 
         for x in x {
             if (screen_pos as i32 - x).abs() <= 1 {
-                print!("#")
+                print!("#");
             } else {
-                print!(".")
+                print!(".");
             }
 
             if screen_pos == width - 1 {
