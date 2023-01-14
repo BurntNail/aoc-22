@@ -7,3 +7,4 @@ edition = "2021"
 
 [dependencies]
 array2d.workspace = true
+rayon.workspace = true

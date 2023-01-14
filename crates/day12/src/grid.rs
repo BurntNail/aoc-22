@@ -1,13 +1,14 @@
+use crate::Coord;
 use array2d::Array2D;
 
-#[derive(Copy, Clone, Debug)]
-pub enum Node {
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
+pub enum Tree {
     Start,
     End,
     Elevation(u8),
 }
 
-impl Node {
+impl Tree {
     pub const fn elevation(self) -> u8 {
         match self {
             Self::Start => 1,
@@ -17,7 +18,7 @@ impl Node {
     }
 }
 
-impl TryFrom<char> for Node {
+impl TryFrom<char> for Tree {
     type Error = String;
 
     fn try_from(value: char) -> Result<Self, Self::Error> {
@@ -31,7 +32,7 @@ impl TryFrom<char> for Node {
 }
 
 #[derive(Clone, Debug)]
-pub struct Grid(Array2D<Node>);
+pub struct Grid(Array2D<Tree>);
 
 impl TryFrom<String> for Grid {
     type Error = String;
@@ -41,7 +42,7 @@ impl TryFrom<String> for Grid {
         for row in value.lines() {
             let row = row
                 .chars()
-                .map(Node::try_from)
+                .map(Tree::try_from)
                 .collect::<Result<Vec<_>, _>>()?;
             rows.push(row);
         }
@@ -51,10 +52,14 @@ impl TryFrom<String> for Grid {
 }
 
 impl Grid {
-    pub fn to_places_i_can_get_to(&self) -> Array2D<Vec<(usize, usize)>> {
+    #[allow(clippy::cast_sign_loss)]
+    ///returns the position of the end as well
+    pub fn to_places_i_can_get_to(&self) -> (Coord, Array2D<Vec<Coord>>) {
         let row_len = self.0.num_rows();
         let col_len = self.0.num_columns();
+
         let mut edges = Array2D::filled_with(vec![], row_len, col_len);
+        let mut end = Default::default();
 
         for row in 0..row_len {
             for col in 0..col_len {
@@ -73,7 +78,12 @@ impl Grid {
                     deltas_to_check.push((0, 1));
                 }
 
-                let elevation_max = self.0.get(row, col).unwrap().elevation() + 1;
+                let node_here = *self.0.get(row, col).unwrap();
+                if node_here == Tree::End {
+                    end = Some((row, col));
+                }
+
+                let elevation_max = node_here.elevation() + 1;
 
                 edges
                     .get_mut(row, col)
@@ -90,6 +100,23 @@ impl Grid {
                     }));
             }
         }
-        edges
+        (end.unwrap(), edges)
+    }
+
+    pub fn get_starting_locations(&self, needs_to_be_start: bool) -> Vec<Coord> {
+        let mut v = vec![];
+
+        for row in 0..self.0.num_rows() {
+            for col in 0..self.0.num_columns() {
+                let this = *self.0.get(row, col).unwrap();
+                if !needs_to_be_start && this == Tree::Elevation(1)
+                    || needs_to_be_start && this == Tree::Start
+                {
+                    v.push((row, col));
+                }
+            }
+        }
+
+        v
     }
 }
