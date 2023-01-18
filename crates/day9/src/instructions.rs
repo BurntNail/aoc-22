@@ -33,7 +33,7 @@ impl From<String> for Instruction {
             'D' => Down,
             'L' => Left,
             'R' => Right,
-            _ => unreachable!("bad input"),
+            _ => unreachable!("bad input.txt"),
         };
         value.remove(0);
         Self(

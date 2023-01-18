@@ -6,7 +6,7 @@ peg::parser!(grammar crates_list() for str {
 });
 peg::parser!(grammar movement() for str {
     rule number() -> u32 = n:$(['0'..='9']+) {n.parse().expect("invalid number")}
-    pub rule movement () -> (usize, usize, usize) = "move " n:number() " from " a:number() " to " b:number() { (n as usize, a as usize - 1, b as usize - 1) } //Minus one as input.txt is human indexed
+    pub rule movement () -> (usize, usize, usize) = "move " n:number() " from " a:number() " to " b:number() { (n as usize, a as usize - 1, b as usize - 1) } //Minus one as input.txt.txt is human indexed
 });
 use crates_list::crates;
 use movement::movement;
