@@ -1,4 +1,5 @@
 use crate::lists::Pair;
+use lists::Item;
 use nom::{character::complete::i32, IResult};
 use std::cmp::Ordering;
 
@@ -10,25 +11,26 @@ pub fn int_item(input: &str) -> IResult<&str, IntItem> {
 }
 
 fn main() {
-    //working for sample given, but not for actual solution - too low
     let input = include_str!("input.txt");
-    let pairs = Pair::get_pairs(input).expect("getting pairs").1;
+    let pairs = Pair::get_all(input).unwrap().1;
+    println!("Working sum is {:?}.", p1(pairs.clone()));
+}
+
+fn p1 (v: Vec<Item>) -> usize {
+    let pairs = Pair::get_pairs(v);
 
     println!("Checking {} pairs", pairs.len());
 
-    let product_working = pairs
+    pairs
         .into_iter()
         .enumerate()
         .filter_map(|(i, pair)| {
             let i = i + 1;
-            println!("Checking {i}");
             if pair.compare() == Ordering::Less {
                 Some(i)
             } else {
                 None
             }
         })
-        .sum::<usize>();
-    // .collect::<Vec<_>>();
-    println!("Working sum is {product_working:?}.");
+        .sum::<usize>()
 }
