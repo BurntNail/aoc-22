@@ -22,7 +22,7 @@ fn main() {
         .filter_map(|(i, pair)| {
             let i = i + 1;
             println!("Checking {i}");
-            if pair.compare() != Ordering::Greater {
+            if pair.compare() == Ordering::Less {
                 Some(i)
             } else {
                 None

@@ -20,25 +20,28 @@ pub enum Item {
 pub fn compare(first: Item, second: Item, padding: Option<String>) -> Ordering {
     let padding = padding.unwrap_or_default() + "\t";
     println!("{padding}Comparing {first:?} and {second:?}");
+
     let res = match (first, second) {
         (Item::Literal(first), Item::Literal(second)) => first.cmp(&second),
         (Item::List(mut first), Item::List(mut second)) => {
             let mut res = None;
 
-            for _ in 0..first.len() {
+            let fl = first.len();
+            let sl = second.len();
+
+            for _ in 0..fl {
                 if second.is_empty() {
-                    res = Some(Ordering::Greater);
                     break;
                 }
 
                 let cmp = compare(first.remove(0), second.remove(0), Some(padding.clone()));
-                if matches!(cmp, Ordering::Less | Ordering::Greater) {
+                if cmp != Ordering::Equal {
                     res = Some(cmp);
                     break;
                 }
             }
 
-            res.unwrap_or(Ordering::Equal)
+            res.unwrap_or_else(|| fl.cmp(&sl))
         }
         (Item::Literal(first), Item::List(second)) => compare(
             Item::List(vec![Item::Literal(first)]),
