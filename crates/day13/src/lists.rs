@@ -8,13 +8,34 @@ use nom::{
     sequence::tuple,
     IResult,
 };
-use std::cmp::Ordering;
-use std::cmp::Ord;
+use std::{
+    cmp::{Ord, Ordering},
+    fmt::{Display, Formatter},
+};
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum Item {
     List(Vec<Self>),
     Literal(IntItem),
+}
+
+impl Display for Item {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Item::List(l) => {
+                write!(f, "[")?;
+                if !l.is_empty() {
+                    let ll = l.len() - 1;
+                    for i in 0..ll {
+                        write!(f, "{},", l[i])?;
+                    }
+                    write!(f, "{}", l[ll])?;
+                }
+                write!(f, "]")
+            }
+            Item::Literal(a) => write!(f, "{a}"),
+        }
+    }
 }
 
 impl PartialOrd for Item {
@@ -32,32 +53,31 @@ impl Ord for Item {
                 let mut second = second.clone();
 
                 let mut res = None;
-    
+
                 let fl = first.len();
                 let sl = second.len();
-    
+
                 for _ in 0..fl {
                     if second.is_empty() {
                         break;
                     }
-    
+
                     let cmp = first.remove(0).cmp(&second.remove(0));
                     if cmp != Ordering::Equal {
                         res = Some(cmp);
                         break;
                     }
                 }
-    
+
                 res.unwrap_or_else(|| fl.cmp(&sl))
             }
-            (Item::Literal(first), Item::List(second)) => Item::List(vec![Item::Literal(*first)]).cmp(
-                &Item::List(second.clone())
-            ),
+            (Item::Literal(first), Item::List(second)) => {
+                Item::List(vec![Item::Literal(*first)]).cmp(&Item::List(second.clone()))
+            }
             (Item::List(first), Item::Literal(second)) => Item::List(first.clone()).cmp(
-                &Item::List(vec![Item::Literal(*second)]) //TODO: look at changing this to work with slices/references
+                &Item::List(vec![Item::Literal(*second)]), //TODO: look at changing this to work with slices/references
             ),
         }
-    
     }
 }
 
@@ -80,20 +100,23 @@ impl Pair {
 }
 
 impl Pair {
-    pub fn get_all (input: &str) -> IResult<&str, Vec<Item>> {
+    pub fn get_all(input: &str) -> IResult<&str, Vec<Item>> {
         let (input, v) = count(
             tuple((Item::parse, multispace0, Item::parse, multispace0)),
             (input.lines().count() + 1) / 3,
         )(input)?;
 
-        let v = v.into_iter().map(|(first, _, second, _)| vec![first, second]).flatten().collect();
+        let v = v
+            .into_iter()
+            .flat_map(|(first, _, second, _)| vec![first, second])
+            .collect();
         Ok((input, v))
     }
 
     pub fn get_pairs(mut v: Vec<Item>) -> Vec<Self> {
         let mut v2 = vec![];
 
-        for _ in 0..v.len()/2 {
+        for _ in 0..v.len() / 2 {
             v2.push(Self(v.remove(0), v.remove(0)));
         }
 

@@ -14,10 +14,13 @@ fn main() {
     let input = include_str!("input.txt");
     let pairs = Pair::get_all(input).unwrap().1;
     println!("Working sum is {:?}.", p1(pairs.clone()));
-    println!("Divisors product is {:?}", p2(pairs.clone()));
+
+    println!("\n\n");
+
+    println!("Divisors product is {:?}", p2(pairs));
 }
 
-fn p1 (v: Vec<Item>) -> usize {
+fn p1(v: Vec<Item>) -> usize {
     let pairs = Pair::get_pairs(v);
 
     println!("Checking {} pairs", pairs.len());
@@ -36,12 +39,22 @@ fn p1 (v: Vec<Item>) -> usize {
         .sum()
 }
 
-fn p2 (mut v: Vec<Item>) -> usize {
+fn p2(mut v: Vec<Item>) -> usize {
     let divisors = Pair::get_all("[[2]]\n[[6]]").unwrap().1;
+
+    v.extend(divisors.clone());
 
     v.sort();
 
-    println!("{:?}", divisors.iter().map(|x| format!("{x:?}")).collect::<Vec<String>>().join("\n"));
-
-    v.into_iter().enumerate().filter_map(|(index, item)| if divisors.contains(&item) { Some(index + 1) } else {None}).product()
+    v.into_iter()
+        .enumerate()
+        .filter_map(|(index, item)| {
+            println!("Checking against {item}");
+            if divisors.contains(&item) {
+                Some(index + 1)
+            } else {
+                None
+            }
+        })
+        .product()
 }
