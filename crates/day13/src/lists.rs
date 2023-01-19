@@ -26,8 +26,8 @@ impl Display for Item {
                 write!(f, "[")?;
                 if !l.is_empty() {
                     let ll = l.len() - 1;
-                    for i in 0..ll {
-                        write!(f, "{},", l[i])?;
+                    for item in l.iter().take(ll) {
+                        write!(f, "{item},")?;
                     }
                     write!(f, "{}", l[ll])?;
                 }
@@ -47,7 +47,7 @@ impl PartialOrd for Item {
 impl Ord for Item {
     fn cmp(&self, other: &Self) -> Ordering {
         match (self, other) {
-            (Item::Literal(first), Item::Literal(second)) => first.cmp(&second),
+            (Item::Literal(first), Item::Literal(second)) => first.cmp(second),
             (Item::List(first), Item::List(second)) => {
                 let mut first = first.clone();
                 let mut second = second.clone();
