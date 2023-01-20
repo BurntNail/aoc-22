@@ -17,6 +17,7 @@ pub type Coords = (usize, usize);
 pub enum State {
     Rock,
     FallenSand,
+    Start,
     Nothing,
 }
 
@@ -31,12 +32,14 @@ impl Display for State {
         let c = match self {
             Self::Rock => '#',
             Self::FallenSand => '.',
+            Self::Start => 'S',
             Self::Nothing => ' ',
         };
         write!(f, "{c}")
     }
 }
 
+#[derive(Debug, Clone)]
 pub struct Line(pub Vec<Coords>);
 
 fn parse_coords(input: &str) -> IResult<&str, Coords> {
