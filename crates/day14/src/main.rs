@@ -1,5 +1,7 @@
 #![warn(clippy::all, clippy::nursery, clippy::pedantic)]
 
+use std::time::Instant;
+
 use array2d::Array2D;
 use itertools::Itertools;
 use rock::State;
@@ -10,11 +12,13 @@ mod rock;
 
 fn main() {
     let rock_lines = Line::parse_all(include_str!("input.txt")).unwrap().1;
-    // println!("No of sands that work: {}", p1(rock_lines.clone(), false));
+    // println!("No of sands that work: {}", part(rock_lines.clone(), false));
+    let timer = Instant::now();
     println!(
         "No of sands that work with a floor: {}",
-        p1(rock_lines, true)
+        part(rock_lines, true)
     );
+    println!("Took {:?}.", timer.elapsed()); //running repeatedly, fastest is around 17ms
 }
 
 fn get_rocks_array(rock_lines: Vec<Line>, make_floor: bool) -> (Array2D<State>, Coords) {
@@ -37,6 +41,14 @@ fn get_rocks_array(rock_lines: Vec<Line>, make_floor: bool) -> (Array2D<State>, 
     }
     max_row += 2;
 
+    const MARGIN: usize = 1_000;
+    if min_col > MARGIN {
+        min_col -= MARGIN;
+    } else {
+        min_col = 0;
+    }
+    max_col += MARGIN;
+
     if make_floor {
         rs_and_cs.extend((min_col..=max_col).map(|col| (max_row, col)));
     }
@@ -55,7 +67,7 @@ fn get_rocks_array(rock_lines: Vec<Line>, make_floor: bool) -> (Array2D<State>, 
     (array, (0 - min_row, 500 - min_col))
 }
 
-fn p1(rock_lines: Vec<Line>, is_p2: bool) -> usize {
+fn part(rock_lines: Vec<Line>, is_p2: bool) -> usize {
     let (mut array, sand_start) = get_rocks_array(rock_lines, is_p2);
     let max = (array.num_rows() - 1, array.num_columns() - 1);
 
@@ -64,17 +76,25 @@ fn p1(rock_lines: Vec<Line>, is_p2: bool) -> usize {
         let mut sand_pos = sand_start;
 
         let check = |delta_row, delta_col, pos: Coords| -> Option<Coords> {
-            let (check_row, check_col) = (pos.0 as isize + delta_row, pos.1 as isize + delta_col);
-            let (check_row, check_col) = (check_row as usize, check_col as usize);
-            if check_row > max.0
-                || check_col > max.1
-                || array
-                    .get(check_row, check_col)
-                    .map_or(true, |x| x.is_solid())
-            {
+            if pos.0 == max.0 && delta_row == 1 {
                 None
+            } else if pos.1 == max.1 && delta_col == 1 {
+                None
+            } else if pos.1 == 0 && delta_col == -1 {
+                None  
             } else {
-                Some((check_row, check_col))
+                let (check_row, check_col) = (pos.0 as i64 + delta_row, pos.1 as i64 + delta_col);
+                let (check_row, check_col) = (check_row as usize, check_col as usize);
+                if check_row > max.0
+                    || check_col > max.1
+                    || array
+                        .get(check_row, check_col)
+                        .map_or(true, |x| x.is_solid())
+                {
+                    None
+                } else {
+                    Some((check_row, check_col))
+                }  
             }
         };
 
@@ -106,25 +126,18 @@ fn p1(rock_lines: Vec<Line>, is_p2: bool) -> usize {
             .unwrap();
 
         sands += 1;
-        println!("Sands at {sands}");
-
-        // if sands % 5000 == 0 {
-        //     for row in array.as_rows() {
-        //         for item in row {
-        //             print!("{item}");
-        //         }
-        //         println!();
-        //     }
-        //     std::thread::sleep(std::time::Duration::from_millis(6000));
-        // }
     }
 
-    for row in array.as_rows() {
-        for item in row {
-            print!("{item}");
-        }
-        println!();
+    if is_p2 {
+        sands += 1; //for the start point
     }
+
+    // for row in array.as_rows() {
+    //     for item in row {
+    //         print!("{item}");
+    //     }
+    //     println!();
+    // }
 
     sands
 }
