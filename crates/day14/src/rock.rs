@@ -1,5 +1,3 @@
-use std::fmt::Display;
-
 use itertools::Itertools;
 use nom::{
     bytes::complete::tag,
@@ -12,22 +10,6 @@ use nom::{
 
 ///Row, Col NOT x, y
 pub type Coords = (usize, usize);
-
-#[derive(Copy, Clone, Debug, PartialEq, Eq)]
-pub enum State {
-    Rock,
-    FallenSand,
-}
-
-impl Display for State {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let c = match self {
-            Self::Rock => '#',
-            Self::FallenSand => '.',
-        };
-        write!(f, "{c}")
-    }
-}
 
 #[derive(Debug, Clone)]
 pub struct Line(pub Vec<Coords>);
