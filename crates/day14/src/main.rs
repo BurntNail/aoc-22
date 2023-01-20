@@ -56,12 +56,9 @@ fn part(rock_lines: Vec<Line>, is_p2: bool) -> usize {
                 //all the way on the left, going further left, overflow protection
                 None
             } else {
-                let (check_row, check_col) = (pos.0 as i64 + delta_row, pos.1 as i64 + delta_col);
-                let (check_row, check_col) = (check_row as usize, check_col as usize);
-                if check_row == SAND_START.0
-                    || check_col == SAND_START.1
-                    || map.contains_key(&(check_row, check_col))
-                {
+                let (check_row, check_col) =
+                    (pos.0 + delta_row, (pos.1 as i64 + delta_col) as usize);
+                if check_row >= max_row || map.contains_key(&(check_row, check_col)) {
                     None
                 } else {
                     Some((check_row, check_col))
@@ -80,6 +77,8 @@ fn part(rock_lines: Vec<Line>, is_p2: bool) -> usize {
                 sand_pos = new;
             } else if let Some(new) = check(1, 1, sand_pos) {
                 sand_pos = new;
+            } else if sand_pos == SAND_START {
+                break 'outer;
             } else {
                 break 'inner;
             }
@@ -93,13 +92,6 @@ fn part(rock_lines: Vec<Line>, is_p2: bool) -> usize {
     if is_p2 {
         sands += 1; //for the start point
     }
-
-    // for row in array.as_rows() {
-    //     for item in row {
-    //         print!("{item}");
-    //     }
-    //     println!();
-    // }
 
     sands
 }
