@@ -17,14 +17,6 @@ pub type Coords = (usize, usize);
 pub enum State {
     Rock,
     FallenSand,
-    Start,
-    Nothing,
-}
-
-impl State {
-    pub fn is_solid(self) -> bool {
-        self != Self::Nothing
-    }
 }
 
 impl Display for State {
@@ -32,8 +24,6 @@ impl Display for State {
         let c = match self {
             Self::Rock => '#',
             Self::FallenSand => '.',
-            Self::Start => 'S',
-            Self::Nothing => ' ',
         };
         write!(f, "{c}")
     }
