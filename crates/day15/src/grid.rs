@@ -54,20 +54,55 @@ impl Grid {
 
             let md = manhattan(sensor, beacon);
 
-            for dx in -md..=md {
-                let dy = sensor_y - row;
+            let min_y = (sensor_y - md);
+            let max_y = (sensor_y + md);
 
-                let new = (sensor_x + dx, sensor_y + dy);
-
-                if manhattan(sensor, new) > md {
-                    continue;
+            let iter = (min_y..=max_y).flat_map(|covered_y| {
+                if covered_y % 10_000 == 0 {
+                    println!("Doing {covered_y}");
                 }
+                let min_x = (sensor_x - md);
+                let max_x = (sensor_x + md);
+                (min_x..=max_x)
+                    .map(move |covered_x| (covered_x, covered_y))
+                    .filter(|covered| manhattan(*covered, sensor) <= md)
+            });
 
-                set.push(new.0);
-            }
+            set.extend(iter);
         }
 
-        set.into_iter().unique().count() - 1
+        set.into_iter().filter(|(_x, y)| y == &row).unique().count() - 1
+    }
+
+    ///All covered coordinates
+    pub fn find_empty(self, max: Int) -> Coord {
+        let mut set = Vec::new();
+
+        for ((sensor_x, sensor_y), beacon) in self.0 {
+            let sensor = (sensor_x, sensor_y);
+
+            println!("Checking {sensor:?} and {beacon:?}");
+
+            let md = manhattan(sensor, beacon);
+
+            let min_y = (sensor_y - md).clamp(0, max);
+            let max_y = (sensor_y + md).clamp(0, max);
+
+            let iter = (min_y..=max_y)
+                .filter(|covered_y| covered_y < &0 || covered_y > &max)
+                .flat_map(|covered_y| {
+                    let min_x = (sensor_x - md).clamp(0, max);
+                    let max_x = (sensor_x + md).clamp(0, max);
+                    (min_x..=max_x)
+                        .map(move |covered_x| (covered_x, covered_y))
+                        .filter(|(covered_x, _y)| covered_x > &max || covered_x < &0)
+                        .filter(|covered| manhattan(*covered, sensor) <= md)
+                });
+
+            set.extend(iter);
+        }
+
+        todo!()
     }
 }
 
