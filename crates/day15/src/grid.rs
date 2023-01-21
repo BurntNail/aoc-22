@@ -1,3 +1,4 @@
+use itertools::Itertools;
 use nom::{
     bytes::complete::tag, character::complete::i64, combinator::map, sequence::tuple, IResult,
 };
@@ -43,7 +44,7 @@ impl Grid {
     }
 
     ///All covered coordinates
-    pub fn to_filled_grid(self) -> Vec<Coord> {
+    pub fn to_no_in_row(self, row: Int) -> usize {
         let mut set = Vec::new();
 
         for ((sensor_x, sensor_y), beacon) in self.0 {
@@ -54,21 +55,19 @@ impl Grid {
             let md = manhattan(sensor, beacon);
 
             for dx in -md..=md {
-                if dx % 10_000 == 0 {
-                    println!("\t{dx}");
-                }
-                for dy in -md..=md {
-                    let new = (sensor_x + dx, sensor_y + dy);
+                let dy = sensor_y - row;
 
-                    if manhattan(sensor, new) > md {
-                        continue;
-                    }
-                    set.push(new);
+                let new = (sensor_x + dx, sensor_y + dy);
+
+                if manhattan(sensor, new) > md {
+                    continue;
                 }
+
+                set.push(new.0);
             }
         }
 
-        set
+        set.into_iter().unique().count() - 1
     }
 }
 
