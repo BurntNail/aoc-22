@@ -1,17 +1,19 @@
 #![warn(clippy::all, clippy::nursery, clippy::pedantic)]
 
 use crate::rock::{Coords, Line};
-use std::collections::HashSet;
+use std::{collections::HashSet, time::Instant};
 
 mod rock;
 
 fn main() {
     let rock_lines = Line::parse_all(include_str!("input.txt")).unwrap().1;
     // println!("No of sands that work: {}", part(rock_lines.clone(), false));
+    let tim = Instant::now();
     println!(
         "No of sands that work with a floor: {}",
         part(rock_lines, true)
     );
+    println!("Took {:?}.", tim.elapsed());
 }
 
 fn get_rocks_array(rock_lines: Vec<Line>, make_floor: bool) -> (HashSet<Coords>, usize) {
