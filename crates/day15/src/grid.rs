@@ -2,7 +2,7 @@ use itertools::Itertools;
 use nom::{
     bytes::complete::tag, character::complete::i64, combinator::map, sequence::tuple, IResult,
 };
-use std::collections::HashSet;
+use std::{collections::HashSet, ops::RangeInclusive};
 
 pub type Int = i64;
 
@@ -43,66 +43,116 @@ impl Grid {
         Ok(("", Self(map)))
     }
 
-    ///All covered coordinates
-    pub fn to_no_in_row(self, row: Int) -> usize {
-        let mut set = Vec::new();
+    // ///All covered coordinates
+    // pub fn to_no_in_row(self, row: Int) -> usize {
+    //     let mut set = Vec::new();
+    //
+    //     for ((sensor_x, sensor_y), beacon) in self.0 {
+    //         let sensor = (sensor_x, sensor_y);
+    //
+    //         println!("Checking {sensor:?} and {beacon:?}");
+    //
+    //         let md = manhattan(sensor, beacon);
+    //
+    //         let min_y = (sensor_y - md);
+    //         let max_y = (sensor_y + md);
+    //
+    //         let iter = (min_y..=max_y).flat_map(|covered_y| {
+    //             if covered_y % 10_000 == 0 {
+    //                 println!("Doing {covered_y}");
+    //             }
+    //             let min_x = (sensor_x - md);
+    //             let max_x = (sensor_x + md);
+    //             (min_x..=max_x)
+    //                 .map(move |covered_x| (covered_x, covered_y))
+    //                 .filter(|covered| manhattan(*covered, sensor) <= md)
+    //         });
+    //
+    //         set.extend(iter);
+    //     }
+    //
+    //     set.into_iter().filter(|(_x, y)| y == &row).unique().count() - 1
+    // }
+    //
+    // ///All covered coordinates
+    // pub fn find_empty(self, max: Int) -> Coord {
+    //     let mut set = vec![];
+    //
+    //     for ((sensor_x, sensor_y), beacon) in self.0 {
+    //         let sensor = (sensor_x, sensor_y);
+    //
+    //         println!("Checking {sensor:?} and {beacon:?}");
+    //
+    //         let md = manhattan(sensor, beacon);
+    //
+    //         let min_y = (sensor_y - md).clamp(0, max);
+    //         let max_y = (sensor_y + md).clamp(0, max);
+    //
+    //         let iter = (min_y..=max_y)
+    //             .filter(|covered_y| covered_y < &0 || covered_y > &max)
+    //             .flat_map(|covered_y| {
+    //                 let min_x = (sensor_x - md).clamp(0, max);
+    //                 let max_x = (sensor_x + md).clamp(0, max);
+    //                 (min_x..=max_x)
+    //                     .map(move |covered_x| (covered_x, covered_y))
+    //                     .filter(|(covered_x, _y)| covered_x > &max || covered_x < &0)
+    //                     .filter(|covered| manhattan(*covered, sensor) <= md)
+    //             });
+    //
+    //         set.extend(iter);
+    //     }
+    // }
 
-        for ((sensor_x, sensor_y), beacon) in self.0 {
-            let sensor = (sensor_x, sensor_y);
+    fn ranges(self, y: Int) -> impl Iterator<Item = RangeInclusive<Int>> {
+        //https://fasterthanli.me/series/advent-of-code-2022/part-15#range-based-strategy
+        let mut ranges = vec![];
 
-            println!("Checking {sensor:?} and {beacon:?}");
-
+        for (sensor, beacon) in self.0 {
             let md = manhattan(sensor, beacon);
 
-            let min_y = (sensor_y - md);
-            let max_y = (sensor_y + md);
+            let y_dist = (y - sensor.1).abs();
+            if y_dist > md {
+                continue;
+            }
 
-            let iter = (min_y..=max_y).flat_map(|covered_y| {
-                if covered_y % 10_000 == 0 {
-                    println!("Doing {covered_y}");
-                }
-                let min_x = (sensor_x - md);
-                let max_x = (sensor_x + md);
-                (min_x..=max_x)
-                    .map(move |covered_x| (covered_x, covered_y))
-                    .filter(|covered| manhattan(*covered, sensor) <= md)
-            });
-
-            set.extend(iter);
+            let d = md - y_dist;
+            let middle = sensor.0;
+            ranges.push((middle - d)..=(middle + d));
         }
+        ranges.sort_by_key(|r| *r.start());
 
-        set.into_iter().filter(|(_x, y)| y == &row).unique().count() - 1
+        ranges.into_iter().coalesce(|a, b| {
+            if b.start() - 1 < *a.end() {
+                if b.end() > a.end() {
+                    Ok(*a.start()..=*b.end())
+                } else {
+                    Ok(a)
+                }
+            } else {
+                Err((a, b))
+            }
+        })
     }
 
-    ///All covered coordinates
-    pub fn find_empty(self, max: Int) -> Coord {
-        let mut set = Vec::new();
+    pub fn to_num_in_row(self, y: Int) -> usize {
+        let beacon_x = self
+            .0
+            .iter()
+            .filter_map(|(_, (beacon_x, beacon_y))| {
+                if *beacon_y == y {
+                    Some(*beacon_x)
+                } else {
+                    None
+                }
+            })
+            .collect::<HashSet<_>>();
 
-        for ((sensor_x, sensor_y), beacon) in self.0 {
-            let sensor = (sensor_x, sensor_y);
-
-            println!("Checking {sensor:?} and {beacon:?}");
-
-            let md = manhattan(sensor, beacon);
-
-            let min_y = (sensor_y - md).clamp(0, max);
-            let max_y = (sensor_y + md).clamp(0, max);
-
-            let iter = (min_y..=max_y)
-                .filter(|covered_y| covered_y < &0 || covered_y > &max)
-                .flat_map(|covered_y| {
-                    let min_x = (sensor_x - md).clamp(0, max);
-                    let max_x = (sensor_x + md).clamp(0, max);
-                    (min_x..=max_x)
-                        .map(move |covered_x| (covered_x, covered_y))
-                        .filter(|(covered_x, _y)| covered_x > &max || covered_x < &0)
-                        .filter(|covered| manhattan(*covered, sensor) <= md)
-                });
-
-            set.extend(iter);
-        }
-
-        todo!()
+        self.ranges(y)
+            .map(|r| {
+                (r.end() - r.start() + 1) as usize
+                    - beacon_x.iter().filter(|x| r.contains(x)).count()
+            })
+            .sum::<usize>()
     }
 }
 

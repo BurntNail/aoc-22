@@ -1,4 +1,4 @@
-use crate::grid::{Grid, Int};
+use crate::grid::Grid;
 
 mod grid;
 
@@ -11,8 +11,8 @@ fn main() {
 }
 
 fn p1(grid: Grid) {
-    println!("{}", grid.to_no_in_row(2000000));
+    println!("{}", grid.to_num_in_row(2000000));
 }
-fn p2(grid: Grid) {
-    let pos = grid.find_empty(4000000);
-}
+// fn p2(grid: Grid) {
+//     let pos = grid.find_empty(4000000);
+// }
