@@ -2,7 +2,10 @@ use itertools::Itertools;
 use nom::{
     bytes::complete::tag, character::complete::i64, combinator::map, sequence::tuple, IResult,
 };
-use std::{collections::HashSet, ops::RangeInclusive};
+use std::{
+    collections::HashSet,
+    ops::{Range, RangeInclusive},
+};
 
 pub type Int = i64;
 
@@ -103,7 +106,11 @@ impl Grid {
     //     }
     // }
 
-    fn ranges(self, y: Int) -> impl Iterator<Item = RangeInclusive<Int>> {
+    fn ranges(
+        self,
+        y: Int,
+        x_range: Option<RangeInclusive<Int>>,
+    ) -> impl Iterator<Item = RangeInclusive<Int>> {
         //https://fasterthanli.me/series/advent-of-code-2022/part-15#range-based-strategy
         let mut ranges = vec![];
 
@@ -117,7 +124,20 @@ impl Grid {
 
             let d = md - y_dist;
             let middle = sensor.0;
-            ranges.push((middle - d)..=(middle + d));
+
+            let trial_r = (middle - d)..=(middle + d);
+            let fits_in_range = {
+                if let Some(x_range) = x_range.clone() {
+                    let r =
+                        *trial_r.start().max(x_range.start())..=*trial_r.end().min(x_range.end());
+                    r.start() < r.end()
+                } else {
+                    true
+                }
+            };
+            if fits_in_range {
+                ranges.push(trial_r);
+            }
         }
         ranges.sort_by_key(|r| *r.start());
 
@@ -147,12 +167,25 @@ impl Grid {
             })
             .collect::<HashSet<_>>();
 
-        self.ranges(y)
+        self.ranges(y, None)
             .map(|r| {
                 (r.end() - r.start() + 1) as usize
                     - beacon_x.iter().filter(|x| r.contains(x)).count()
             })
             .sum::<usize>()
+    }
+
+    pub fn beacon_position(
+        self,
+        x_range: RangeInclusive<Int>,
+        mut y_range: RangeInclusive<Int>,
+    ) -> Option<Coord> {
+        y_range.find_map(|y| {
+            self.clone()
+                .ranges(y, Some(x_range.clone()))
+                .nth(1)
+                .map(|range| (range.start() - 1, y))
+        })
     }
 }
 

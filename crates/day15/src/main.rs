@@ -6,13 +6,14 @@ fn main() {
     let input = include_str!("input.txt");
 
     let grid = Grid::parse(input).unwrap().1;
-    p1(grid);
-    // p2(grid);
+    p1(grid.clone());
+    p2(grid);
 }
 
 fn p1(grid: Grid) {
-    println!("{}", grid.to_num_in_row(2000000));
+    println!("Number in 2_000_000: {}", grid.to_num_in_row(2000000));
 }
-// fn p2(grid: Grid) {
-//     let pos = grid.find_empty(4000000);
-// }
+fn p2(grid: Grid) {
+    let pos = grid.beacon_position(0..=4_000_000, 0..=4_000_000).unwrap();
+    println!("TF of {pos:?} == {}", pos.0 * 4_000_000 + pos.1);
+}
