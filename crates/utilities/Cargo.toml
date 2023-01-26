@@ -11,3 +11,7 @@ nom.workspace = true
 num-bigint.workspace = true
 num-integer.workspace = true
 num-traits.workspace = true
+nom-supreme.workspace = true
+nom_locate.workspace = true
+miette.workspace = true
+thiserror.workspace = true

@@ -1,3 +1,5 @@
+extern crate core;
+
 ///Provides a trait for HashSet utilities
 pub mod collection_utilities;
 ///Provides integer-based utilities
