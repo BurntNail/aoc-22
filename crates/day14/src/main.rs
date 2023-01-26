@@ -42,6 +42,7 @@ fn get_rocks_array(rock_lines: Vec<Line>, make_floor: bool) -> (HashSet<Coords>,
     (rs_and_cs, max_row)
 }
 
+#[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
 fn part(rock_lines: Vec<Line>, is_p2: bool) -> usize {
     const SAND_START: Coords = (0, 500);
     let (mut map, max_row) = get_rocks_array(rock_lines, is_p2);

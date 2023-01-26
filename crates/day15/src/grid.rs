@@ -2,10 +2,7 @@ use itertools::Itertools;
 use nom::{
     bytes::complete::tag, character::complete::i64, combinator::map, sequence::tuple, IResult,
 };
-use std::{
-    collections::HashSet,
-    ops::{Range, RangeInclusive},
-};
+use std::{collections::HashSet, ops::RangeInclusive};
 
 pub type Int = i64;
 
@@ -154,7 +151,7 @@ impl Grid {
         })
     }
 
-    pub fn to_num_in_row(self, y: Int) -> usize {
+    pub fn into_num_in_row(self, y: Int) -> usize {
         let beacon_x = self
             .0
             .iter()

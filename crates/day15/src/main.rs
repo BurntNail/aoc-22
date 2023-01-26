@@ -11,7 +11,7 @@ fn main() {
 }
 
 fn p1(grid: Grid) {
-    println!("Number in 2_000_000: {}", grid.to_num_in_row(2000000));
+    println!("Number in 2_000_000: {}", grid.into_num_in_row(2000000));
 }
 fn p2(grid: Grid) {
     let pos = grid.beacon_position(0..=4_000_000, 0..=4_000_000).unwrap();
