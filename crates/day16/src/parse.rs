@@ -1,11 +1,11 @@
 use nom::{
     bytes::complete::tag,
-    character::{complete::{newline, one_of, u64}, streaming::crlf},
+    character::{complete::{one_of, u64}},
     combinator::map,
     error::ParseError,
     multi::separated_list0,
     sequence::{preceded, tuple},
-    IResult, branch::alt,
+    IResult,
 };
 use once_cell::sync::Lazy;
 use utilities::nom_utils::{plural_and_spaces, Span, pa_newline};
@@ -19,6 +19,15 @@ pub fn int<'a, E: ParseError<Span<'a>>>(input: Span<'a>) -> IResult<Span<'a>, In
 pub struct Valve {
     flow_rate: Int,
     leads_to: Vec<String>,
+}
+
+impl Valve {
+    pub fn contains (&self, st: &String) -> bool {
+        self.leads_to.contains(st)
+    } 
+    pub fn flow_rate (&self) -> Int {
+        self.flow_rate
+    }
 }
 
 impl Valve {
@@ -36,10 +45,8 @@ impl Valve {
     pub fn parse<'a, E: ParseError<Span<'a>>>(
         input: Span<'a>,
     ) -> IResult<Span<'a>, (String, Self), E> {
-        println!("start");
         let (input, self_name) = preceded(tag("Valve "), Self::parse_valve_name)(input)?;
         let (input, flow_rate) = preceded(tag(" has flow rate="), int)(input)?;
-        println!("flow rate");
         let (input, leads_to) = preceded(
             tuple((
                 tag("; tunnel"),
@@ -51,7 +58,6 @@ impl Valve {
             )),
             separated_list0(tag(", "), Self::parse_valve_name),
         )(input)?;
-        println!("eof");
 
         Ok((
             input,
