@@ -1,7 +1,7 @@
 use miette::GraphicalReportHandler;
 use nom::{
-    character::complete::multispace0, error::ParseError, sequence::tuple, AsChar, IResult,
-    InputIter, InputLength, InputTake, InputTakeAtPosition, Parser,
+    character::complete::{multispace0, char}, error::ParseError, sequence::tuple, AsChar, IResult,
+    InputIter, InputLength, InputTake, InputTakeAtPosition, Parser, combinator::opt, branch::alt, bytes::complete::tag,
 };
 use nom_locate::LocatedSpan;
 use nom_supreme::error::{BaseErrorKind, GenericErrorTree};
@@ -17,6 +17,13 @@ where
         let (input, (_, res, _)) = tuple((multispace0, parser, multispace0))(input)?;
         Ok((input, res))
     }
+}
+
+pub fn plural_and_spaces<'a, E: ParseError<Span<'a>>>(input: Span<'a>) -> IResult<Span<'a>, (Option<char>, Span<'a>), E> {
+    tuple((opt(char('s')), multispace0))(input)
+}
+pub fn pa_newline<'a, E: ParseError<Span<'a>>>(input: Span<'a>) -> IResult<Span<'a>, Span<'a>, E> {
+    alt((tag("\n"), tag("\r\n")))(input)
 }
 
 pub type Span<'a> = LocatedSpan<&'a str>;
